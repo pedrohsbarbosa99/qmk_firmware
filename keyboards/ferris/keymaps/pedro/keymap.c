@@ -30,6 +30,7 @@ enum  tap_dance_codes {
     TD_COMM,
     TD_DOT,
     TD_QUOT,
+    TD_ARROW,
 
 };
 
@@ -64,14 +65,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_1,    KC_2,    KC_3,    KC_4,    KC_5,          KC_6,    KC_7,    KC_8,    KC_9,    KC_0,
         KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, KC_NO,         KC_LEFT, KC_UP,   KC_DOWN, KC_RGHT, KC_DEL,
         KC_NO,   KC_NO,   KC_NO,   KC_HOME, KC_END,        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_ESC,
-                          KC_TRNS, KC_SPC,        KC_ENT,  LT(_ADJUST, KC_BSPC)
+                          KC_NO, KC_SPC,        KC_ENT,  LT(_ADJUST, KC_BSPC)
     ),
 
     [_RAISE] = LAYOUT_split_3x5_2(
         KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,       KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,
         KC_LPRN, KC_RPRN, TD(TD_QUOT), KC_TILD, S(KC_SCLN),   KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, KC_BSLS,
-        KC_LCBR, KC_RCBR, KC_NO,   TD(TD_SLSH_QST), KC_CAPS, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE,
-                          KC_NO,   KC_SPC,        KC_ENT,  KC_TRNS
+        KC_LCBR, KC_RCBR, KC_PIPE,   TD(TD_SLSH_QST), TD(TD_ARROW), KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE,
+                          KC_CAPS,   KC_SPC,        KC_ENT,  KC_TRNS
     ),
 
     [_ADJUST] = LAYOUT_split_3x5_2(
@@ -112,15 +113,26 @@ void quot_finished(tap_dance_state_t *state, void *user_data) {
     }
 }
 
+
 void quot_reset(tap_dance_state_t *state, void *user_data) {
     unregister_code(KC_QUOT);
 }
 
+void arrow_finished(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        if (state->pressed) {
+            SEND_STRING("=>");
+        } else {
+            SEND_STRING("->");
+        }
+    }
+}
 
 
 tap_dance_action_t tap_dance_actions[] = {
     [TD_SLSH_QST] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, slsh_qst_finished, slsh_qst_reset),
     [TD_QUOT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, quot_finished, quot_reset),
+    [TD_ARROW] = ACTION_TAP_DANCE_FN(arrow_finished),
 
 };
 
